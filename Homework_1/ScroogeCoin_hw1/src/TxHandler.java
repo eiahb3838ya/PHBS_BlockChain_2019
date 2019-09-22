@@ -1,7 +1,9 @@
+package src;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 public class TxHandler {
 
@@ -13,10 +15,14 @@ public class TxHandler {
 	private  UTXOPool curUTXOPool;
 	
     public TxHandler(UTXOPool utxoPool) {
-    	this.curUTXOPool = new UTXOPool(utxoPool);
+    	this.curUTXOPool = utxoPool;
         // IMPLEMENT THIS
     }
-
+    public UTXOPool getUTXOPool() {
+    	return(this.curUTXOPool);
+    }
+    
+    
     /**
      * @return true if:
      * (1) all outputs claimed by {@code tx} are in the current UTXO pool, 
@@ -30,27 +36,42 @@ public class TxHandler {
     	double totalOutValue = 0;
     	double totalInValue = 0;
     	HashSet<UTXO> uSet = new HashSet<UTXO>();
-    	int index = 0;
-        for(Transaction.Input txIn:tx.getInputs()) {
+//    	int index = 0;
+    	int inputSize = tx.getInputs().size();
+        for(int index = 0;index<inputSize;index ++) {
+        	Transaction.Input txIn = tx.getInput(index);
         	byte[] inPrevHash = txIn.prevTxHash;
         	int inOututIndex = txIn.outputIndex;
+        	
+//        	System.out.println("inPrevHash"+inPrevHash);
+//        	System.out.println("inOututIndex"+inOututIndex);
+        	
         	UTXO toCheck = new UTXO(inPrevHash, inOututIndex);
         	//(1)
         	if(!this.curUTXOPool.contains(toCheck)) {
+        		System.out.println("(1)");
         		return false;
         	}
         	//(2)
         	PublicKey pubKeyToCheck = this.curUTXOPool.getTxOutput(toCheck).address;
-        	if(!Crypto.verifySignature(pubKeyToCheck, tx.getRawDataToSign(index), txIn.signature)){ // (2)
-				return false;
+        	if(Crypto.verifySignature(pubKeyToCheck, tx.getRawDataToSign(index), txIn.signature)==false){ 
+        		
+//        		System.out.println("index"+index);
+//        		System.out.println(tx.getRawDataToSign(index));
+//        		System.out.println(txIn.signature);
+//        		System.out.println(Crypto.verifySignature(pubKeyToCheck, tx.getRawDataToSign(index), txIn.signature));
+//        		
+        		System.out.println("(2)");
+        		return false;
 			}
         	
         	if (!uSet.contains(toCheck)) {
-        		index++;
+        		
         		uSet.add(toCheck);
         		totalInValue += this.curUTXOPool.getTxOutput(toCheck).value;
         	}
         	else {
+        		System.out.println("(3)");
         		return(false);
         	}
         }
@@ -59,10 +80,12 @@ public class TxHandler {
         		totalOutValue +=txout.value;
         	}
         	else {
+        		System.out.println("(4)");
         		return(false);
         	}
         }
         if (totalOutValue>totalInValue) {
+        	System.out.println("(5)");
         	return(false);
         }
         return true;
@@ -75,10 +98,11 @@ public class TxHandler {
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
         boolean checkValid = true;
-        ArrayList<Transaction> possibleTxsList = (ArrayList<Transaction>) Arrays.asList(possibleTxs);
+        ArrayList<Transaction> possibleTxsList =  new ArrayList<Transaction>(Arrays.asList(possibleTxs));
         ArrayList<Transaction> validT = new ArrayList<Transaction>();
         while(checkValid) {
         	int initSize = possibleTxsList.size();
+        	List<Transaction> toRemove = new ArrayList<Transaction>();
         	for(Transaction aTran: possibleTxsList) {
         		if(isValidTx(aTran)){
         			//handle the UTXOPool
@@ -102,13 +126,16 @@ public class TxHandler {
         			
         			
         			validT.add(aTran);
-        			possibleTxsList.remove(aTran);
+        			toRemove.add(aTran);
+//        			possibleTxsList.remove(aTran);
         		}
         	}
+        	possibleTxsList.removeAll(toRemove);
 //        	check if there is a minus and if there is still TX in possibleTxsList
         	checkValid = possibleTxsList.size() < initSize && possibleTxsList.size()!=0;
         }
         return validT.toArray(new Transaction[validT.size()]);
     }
+
 
 }
