@@ -2,12 +2,12 @@
 1901212691 胡逸凡
 ## 1.member summarize
 1. member variable
-    0. public class BlockNode
-    
-        a self designed datastructure as a node of the block tree
-        contain it's block, parent, utxoPool of in this stage(when it comes to this block).  
 
-        ``` java
+    0. public class BlockNode
+    a self designed datastructure as a node of the block tree
+    contain it's block, parent, utxoPool of in this stage(when it comes to this block).  
+
+    ``` java
         private class BlockNode {
         	public Block block;
         	public int h;
@@ -28,7 +28,7 @@
         		}
         	}
         }
-        ``` 
+    ``` 
     1. public static final int CUT_OFF_AGE = 10;
     3. private HashMap<ByteArrayWrapper, BlockNode> blockChain;
         
