@@ -338,6 +338,7 @@ class BlockChainHandlerTest {
                 createdBlock.getPrevBlockHash().equals(block.getHash()) );
         assertTrue("Created block should not have transactions",createdBlock.getTransactions().size() == 0);
     }
+	
 	@Test
 	void testMemoryMaintain() {
 		
