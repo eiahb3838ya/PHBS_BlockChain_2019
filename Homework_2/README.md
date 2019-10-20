@@ -12,8 +12,6 @@
         	public UTXOPool utxoPool;
         	public BlockNode parent;
         	public ArrayList <BlockNode> children;
-        	
-        	//constructor
         	public BlockNode(Block block, BlockNode parent, UTXOPool utxoPool) {
         		this.block = block ;
         		this.parent = parent ;
@@ -47,7 +45,8 @@
         }
         ```
 2. member methods
-    1. constructer
+    1. constructer 
+        
         init the members including utxoPool, txPool, blockChain(the dictoinary)
         add coinbase utxos into utxoPool
         create a blockNode with the given block(genesisBlock)
@@ -61,7 +60,8 @@
         ```
         maintain the maxHeightNode and oldestBlockHeight
     
-    2. addBlock
+    2. addBlock 
+        
         get the parent node with the PrevBlockHash
         create a txHandler with the parents utxoPool
         handle TXs
