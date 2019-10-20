@@ -11,16 +11,16 @@ import java.util.List;
 public class BlockChain {
     public static final int CUT_OFF_AGE = 10;
     private int oldestBlockHeight;
+    private HashMap<ByteArrayWrapper, BlockNode> blockChain;
+    private BlockNode maxHeightNode;
+    private TransactionPool txPool;
     
     private class BlockNode {
     	public Block block;
     	public int h;
     	public UTXOPool utxoPool;
-    	
     	public BlockNode parent;
     	public ArrayList <BlockNode> children;
-    	
-        
     	
     	//constructor
     	public BlockNode(Block block, BlockNode parent, UTXOPool utxoPool) {
@@ -39,9 +39,7 @@ public class BlockChain {
     }
     
     
-    private HashMap<ByteArrayWrapper, BlockNode> blockChain;
-    private BlockNode maxHeightNode;
-    private TransactionPool txPool;
+    
 
     /**
      * create an empty block chain with just a genesis block. Assume {@code genesisBlock} is a valid
@@ -50,11 +48,12 @@ public class BlockChain {
     public BlockChain(Block genesisBlock) {
         // IMPLEMENT THIS
     	
+    	// init the members
     	blockChain = new HashMap<>();
         UTXOPool utxoPool = new UTXOPool();
         txPool = new TransactionPool();
         
-        
+        // add coinbase utxos into utxoPool
         Transaction coinbase = genesisBlock.getCoinbase();
         for (int i = 0; i < coinbase.numOutputs(); i++) {
             Transaction.Output out = coinbase.getOutput(i);
@@ -62,10 +61,14 @@ public class BlockChain {
             utxoPool.addUTXO(utxo, out);
         }
         
+        // create a blockNode with the given block(genesisBlock)
         BlockNode genesisNode = new BlockNode(genesisBlock, null, utxoPool);
-        ByteArrayWrapper wrappedGenesisHash = new ByteArrayWrapper(genesisBlock.getHash());
         
+        //register into the blockChain dictionary
+        ByteArrayWrapper wrappedGenesisHash = new ByteArrayWrapper(genesisBlock.getHash());
         blockChain.put(wrappedGenesisHash, genesisNode);
+        
+        //maintain the maxHeightNode and oldestBlockHeight
         maxHeightNode = genesisNode;
         this.oldestBlockHeight = 1;
     }
@@ -109,6 +112,8 @@ public class BlockChain {
      */
     public boolean addBlock(Block block) {
         // IMPLEMENT THIS
+    	
+    	// get the parent node with the PrevBlockHash
     	byte [] prevBlockHash = block.getPrevBlockHash();
     	if (prevBlockHash == null) {
     		System.out.println("prevBlockHash");
@@ -121,8 +126,7 @@ public class BlockChain {
     		return(false);
     	}
     	
-    	
-    	//handle the transactions
+    	//create a txHandler with the parents utxoPool
     	TxHandler handler = new TxHandler(parent.utxoPool);
     	
     	//debug
@@ -130,21 +134,22 @@ public class BlockChain {
 //        System.out.println(parent.utxoPool);
 //        System.out.println(parent.utxoPool.getAllUTXO());
     	
+    	//handle TXs
     	Transaction[] blockTxs = new Transaction[block.getTransactions().size()];
-    	
+    	//debug
 //    	System.out.println("block.getTransactions()");
 //    	System.out.println(block.getTransactions());
-    	
         for (int i = 0; i < block.getTransactions().size(); i++) {
             blockTxs[i] = block.getTransaction(i);
         }
-                   
         Transaction[] validTxs = handler.handleTxs(blockTxs);
         if (validTxs.length != blockTxs.length) {
         	System.out.println("Tx invalid");
             return (false);
         }
-               
+        
+        
+        //check the length of current branch, cut off if too short 
         if(parent.h + 1 <=maxHeightNode.h - CUT_OFF_AGE) {
         	System.out.println("cut_off_age");
         	return (false);
@@ -162,7 +167,7 @@ public class BlockChain {
         	txPool.removeTransaction(transaction.getHash());
         }
         
-    	//put in the new block 
+    	//register in the new block 
     	BlockNode thisNewBlock = new BlockNode(block, parent, handler.getUTXOPool());
     	blockChain.put(new ByteArrayWrapper(block.getHash()), thisNewBlock);
     	
