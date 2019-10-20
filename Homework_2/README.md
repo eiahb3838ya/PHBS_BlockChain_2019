@@ -5,7 +5,8 @@
     0.  public class BlockNode
         a self designed datastructure as a node of the block tree
         contain it's block, parent, utxoPool of in this stage(when it comes to this block).  
-        ```java
+
+        ``` java
         private class BlockNode {
         	public Block block;
         	public int h;
@@ -26,6 +27,7 @@
         		}
         	}
         }
+        ```
     1. public static final int CUT_OFF_AGE = 10;
     3. private HashMap<ByteArrayWrapper, BlockNode> blockChain;
         the dictionary memorize all the useful blocks
