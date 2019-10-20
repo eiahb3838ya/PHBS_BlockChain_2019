@@ -48,36 +48,36 @@
         ```
 2. member methods
     1. constructer
-        // init the members including utxoPool, txPool, blockChain(the dictoinary)
-        // add coinbase utxos into utxoPool
-        // create a blockNode with the given block(genesisBlock)
+        init the members including utxoPool, txPool, blockChain(the dictoinary)
+        add coinbase utxos into utxoPool
+        create a blockNode with the given block(genesisBlock)
         ``` java
         BlockNode genesisNode = new BlockNode(genesisBlock, null, utxoPool);
         ```
-        //register into the blockChain dictionary
+        register into the blockChain dictionary
         ```java 
         ByteArrayWrapper wrappedGenesisHash = new ByteArrayWrapper(genesisBlock.getHash());
         blockChain.put(wrappedGenesisHash, genesisNode);
         ```
-        //maintain the maxHeightNode and oldestBlockHeight
+        maintain the maxHeightNode and oldestBlockHeight
     
     2. addBlock
-        // get the parent node with the PrevBlockHash
-        //create a txHandler with the parents utxoPool
-        //handle TXs
+        get the parent node with the PrevBlockHash
+        create a txHandler with the parents utxoPool
+        handle TXs
         ```java
         Transaction[] validTxs = handler.handleTxs(blockTxs);
         ```
-        //check the length of current branch, cut off if too short
-        //put in coinbase into UTXOPool
-        //remove valid transactions from global txPool
-        //register in the new block 
+        check the length of current branch, cut off if too short
+        put in coinbase into UTXOPool
+        remove valid transactions from global txPool
+        register in the new block 
         ```java
         BlockNode thisNewBlock = new BlockNode(block, parent, handler.getUTXOPool());
     	blockChain.put(new ByteArrayWrapper(block.getHash()), thisNewBlock);
     	```
-    	//maintain maxHNode
-    	// only keep the recent blocks, blocks more(equal) than 10 is a waste of memory
+    	maintain maxHNode
+    	only keep the recent blocks, blocks more(equal) than 10 is a waste of memory
     3. public Block getMaxHeightBlock() 
         just return (trivial)
     4. public UTXOPool getMaxHeightUTXOPool() 
