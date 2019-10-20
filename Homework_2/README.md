@@ -2,7 +2,8 @@
 1901212691 胡逸凡
 ## 1.member summarize
 1. member variable
-    0.  public class BlockNode
+    0. public class BlockNode
+    
         a self designed datastructure as a node of the block tree
         contain it's block, parent, utxoPool of in this stage(when it comes to this block).  
 
@@ -27,15 +28,19 @@
         		}
         	}
         }
-        ```
+        ``` 
     1. public static final int CUT_OFF_AGE = 10;
     3. private HashMap<ByteArrayWrapper, BlockNode> blockChain;
+        
         the dictionary memorize all the useful blocks
     4. private BlockNode maxHeightNode;
+        
         remember the last block on the longest brench
     5. private TransactionPool txPool; 
+        
         a global TransactionPool
     6. private int oldestBlockHeight;
+        
         maintain a oldestBlockHeight to delete blocks that doesn't need to be memorize at the end of creating a new block
         ```java
         if (maxHeightNode.h - oldestBlockHeight >= 9) {
