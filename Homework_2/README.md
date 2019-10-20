@@ -4,6 +4,7 @@
 1. member variable
 
     0. public class BlockNode
+    
     a self designed datastructure as a node of the block tree
     contain it's block, parent, utxoPool of in this stage(when it comes to this block).  
 
