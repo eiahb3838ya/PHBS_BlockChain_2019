@@ -2,18 +2,19 @@
 1901212691 胡逸凡
 ## 1.member summarize
 1. member variable
-    0.  public class BlockNode
-        a self designed datastructure as a node of the block tree
-        contain it's block, parent, utxoPool of in this stage(when it comes to this block).  
-        ```java
+
+    0. public class BlockNode
+    
+    a self designed datastructure as a node of the block tree
+    contain it's block, parent, utxoPool of in this stage(when it comes to this block).  
+
+    ``` java
         private class BlockNode {
         	public Block block;
         	public int h;
         	public UTXOPool utxoPool;
         	public BlockNode parent;
         	public ArrayList <BlockNode> children;
-        	
-        	//constructor
         	public BlockNode(Block block, BlockNode parent, UTXOPool utxoPool) {
         		this.block = block ;
         		this.parent = parent ;
@@ -28,14 +29,19 @@
         		}
         	}
         }
+    ``` 
     1. public static final int CUT_OFF_AGE = 10;
     3. private HashMap<ByteArrayWrapper, BlockNode> blockChain;
+        
         the dictionary memorize all the useful blocks
     4. private BlockNode maxHeightNode;
+        
         remember the last block on the longest brench
     5. private TransactionPool txPool; 
+        
         a global TransactionPool
     6. private int oldestBlockHeight;
+        
         maintain a oldestBlockHeight to delete blocks that doesn't need to be memorize at the end of creating a new block
         ```java
         if (maxHeightNode.h - oldestBlockHeight >= 9) {
@@ -47,37 +53,39 @@
         }
         ```
 2. member methods
-    1. constructer
-        // init the members including utxoPool, txPool, blockChain(the dictoinary)
-        // add coinbase utxos into utxoPool
-        // create a blockNode with the given block(genesisBlock)
+    1. constructer 
+        
+        init the members including utxoPool, txPool, blockChain(the dictoinary)
+        add coinbase utxos into utxoPool
+        create a blockNode with the given block(genesisBlock)
         ``` java
         BlockNode genesisNode = new BlockNode(genesisBlock, null, utxoPool);
         ```
-        //register into the blockChain dictionary
+        register into the blockChain dictionary
         ```java 
         ByteArrayWrapper wrappedGenesisHash = new ByteArrayWrapper(genesisBlock.getHash());
         blockChain.put(wrappedGenesisHash, genesisNode);
         ```
-        //maintain the maxHeightNode and oldestBlockHeight
+        maintain the maxHeightNode and oldestBlockHeight
     
-    2. addBlock
-        // get the parent node with the PrevBlockHash
-        //create a txHandler with the parents utxoPool
-        //handle TXs
+    2. addBlock 
+        
+        get the parent node with the PrevBlockHash
+        create a txHandler with the parents utxoPool
+        handle TXs
         ```java
         Transaction[] validTxs = handler.handleTxs(blockTxs);
         ```
-        //check the length of current branch, cut off if too short
-        //put in coinbase into UTXOPool
-        //remove valid transactions from global txPool
-        //register in the new block 
+        check the length of current branch, cut off if too short
+        put in coinbase into UTXOPool
+        remove valid transactions from global txPool
+        register in the new block 
         ```java
         BlockNode thisNewBlock = new BlockNode(block, parent, handler.getUTXOPool());
     	blockChain.put(new ByteArrayWrapper(block.getHash()), thisNewBlock);
     	```
-    	//maintain maxHNode
-    	// only keep the recent blocks, blocks more(equal) than 10 is a waste of memory
+    	maintain maxHNode
+    	only keep the recent blocks, blocks more(equal) than 10 is a waste of memory
     3. public Block getMaxHeightBlock() 
         just return (trivial)
     4. public UTXOPool getMaxHeightUTXOPool() 
